@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	wordWrap "github.com/mitchellh/go-wordwrap"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -16,23 +17,6 @@ type Delimiters struct {
 	first, middle, last, only [2]rune
 }
 
-func split(text string) []string {
-	var result []string
-	length := len(text)
-	lineCount := int(length/38) + 1
-	result = make([]string, lineCount)
-	for i := 0; i < lineCount; i++ {
-		start := i * 38
-		end := start + 38
-		if end > length {
-			end = length
-		}
-		result[i] = text[start:end]
-	}
-
-	return result
-}
-
 func say(text string) string {
 	d := Delimiters{
 		first:  [2]rune{'/', '\\'},
@@ -40,7 +24,9 @@ func say(text string) string {
 		last:   [2]rune{'\\', '/'},
 		only:   [2]rune{'<', '>'},
 	}
-	lines := split(text)
+
+	text = wordWrap.WrapString(text, 38)
+	lines := strings.Split(text, "\n")
 	nbLines := len(lines)
 	upper := " "
 	lower := " "
@@ -55,7 +41,7 @@ func say(text string) string {
 			if index == 0 {
 				newText = fmt.Sprintf("%c %s %c\n", d.first[0], line, d.first[1])
 			} else if index == nbLines-1 {
-				for spaceCount := 38 - len(line); spaceCount > 0; spaceCount-- {
+				for spaceCount := 40 - len(line); spaceCount > 0; spaceCount-- {
 					line += " "
 				}
 				newText += fmt.Sprintf("%c %s %c", d.last[0], line, d.last[1])
