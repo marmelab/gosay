@@ -12,7 +12,7 @@ import (
 
 var thoughts = "\\"
 var text = ""
-var maxWidth = 40
+var maxWidth int
 
 type Delimiters struct {
 	first, middle, last, only [2]rune
@@ -70,8 +70,9 @@ func main() {
 	var eyes, tongue string
 	flag.StringVar(&eyes, "e", "oo", "specify the eye")
 	flag.StringVar(&tongue, "T", "  ", "specify the tongue")
+	flag.IntVar(&maxWidth, "W", 40, "specify roughly where the word should be wrapped")
 	flag.Parse()
-	if len(tongue) < 2 {
+	if utf8.RuneCountInString(tongue) < 2 {
 		tongue += " "
 	}
 	file, _ := ioutil.ReadFile("cows/default.cow")
