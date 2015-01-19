@@ -46,6 +46,6 @@ func Say(text string, maxWidth int, d cowsayType.Delimiters) string {
 
 		return fmt.Sprintf("%s\n%s \n%s", upper, newText, lower)
 	} else {
-		return fmt.Sprintf("%s\n %s \n%s", upper, d.Only[0], lines[0], d.Only[1], lower)
+		return fmt.Sprintf("%s\n %c %s %c \n%s", upper, d.Only[0], lines[0], d.Only[1], lower)
 	}
 }
