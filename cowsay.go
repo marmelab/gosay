@@ -67,11 +67,29 @@ func say(text string) string {
 }
 
 func main() {
+	var cowPath = os.Getenv("COWPATH")
+	if cowPath == "" {
+		cowPath = "./cows"
+	}
 	var eyes, tongue string
+	var list bool
 	flag.StringVar(&eyes, "e", "oo", "specify the eye")
 	flag.StringVar(&tongue, "T", "  ", "specify the tongue")
 	flag.IntVar(&maxWidth, "W", 40, "specify roughly where the word should be wrapped")
+	flag.BoolVar(&list, "l", false, "list cow file in COWPATH")
 	flag.Parse()
+
+	if list {
+		files, _ := ioutil.ReadDir(cowPath)
+		for _, f := range files {
+			name := strings.Split(f.Name(), ".")
+			if len(name) > 1 && name[1] == "cow" {
+				fmt.Println(name[0])
+			}
+		}
+		return
+	}
+
 	if utf8.RuneCountInString(tongue) < 2 {
 		tongue += " "
 	}
