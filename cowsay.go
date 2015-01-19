@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/marmelab/cowsay/cowsayType"
 	"github.com/marmelab/cowsay/util/balloon"
 	"io/ioutil"
 	"log"
@@ -22,7 +23,7 @@ func main() {
 		cowPath = "./cows"
 	}
 	var eyes, tongue, cowfile string
-	var list, borg, dead, greedy, paranoia, stoned, tired, wired, youthful bool
+	var list, borg, dead, greedy, paranoia, stoned, tired, wired, youthful, think bool
 	flag.StringVar(&eyes, "e", "oo", "specify the eye")
 	flag.StringVar(&tongue, "T", "  ", "specify the tongue")
 	flag.StringVar(&cowfile, "f", "default", "specify the cow file to use")
@@ -36,6 +37,7 @@ func main() {
 	flag.BoolVar(&tired, "t", false, "tired mode")
 	flag.BoolVar(&wired, "w", false, "wired mode")
 	flag.BoolVar(&youthful, "y", false, "youthful mode")
+	flag.BoolVar(&think, "think", false, "thinking cow")
 
 	flag.Parse()
 
@@ -104,6 +106,21 @@ func main() {
 
 	cow := string(file)
 
+	d := cowsayType.Delimiters{
+		First:  [2]rune{'/', '\\'},
+		Middle: [2]rune{'|', '|'},
+		Last:   [2]rune{'\\', '/'},
+		Only:   [2]rune{'<', '>'},
+	}
+
+	if think == true {
+		thoughts = "o"
+		d.First = [2]rune{'(', ')'}
+		d.Middle = [2]rune{'(', ')'}
+		d.Last = [2]rune{'(', ')'}
+		d.Only = [2]rune{'(', ')'}
+	}
+
 	r, error := regexp.Compile("##.*\n")
 	if error != nil {
 		log.Fatal(error)
@@ -120,7 +137,7 @@ func main() {
 	cow = strings.Replace(cow, "$thoughts", thoughts, -1)
 	cow = strings.Replace(cow, "\nEOC", "", 1)
 
-	cow = balloon.Say(text, maxWidth) + "\n" + cow
+	cow = balloon.Say(text, maxWidth, d) + "\n" + cow
 
 	fmt.Printf(cow)
 }
