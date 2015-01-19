@@ -1,14 +1,14 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	wordWrap "github.com/mitchellh/go-wordwrap"
+	wordwrap "github.com/mitchellh/go-wordwrap"
 	"io/ioutil"
 	"os"
 	"strings"
 )
 
-var eyes = "oo"
 var tongue = "  "
 var thoughts = "\\"
 var text = ""
@@ -25,7 +25,7 @@ func say(text string) string {
 		only:   [2]rune{'<', '>'},
 	}
 
-	text = wordWrap.WrapString(text, 38)
+	text = wordwrap.WrapString(text, 38)
 	lines := strings.Split(text, "\n")
 	nbLines := len(lines)
 	upper := " "
@@ -56,14 +56,18 @@ func say(text string) string {
 }
 
 func main() {
+	var e string
+	flag.StringVar(&e, "e", "oo", "specify the eye")
+	flag.Parse()
 	file, _ := ioutil.ReadFile("cows/default.cow")
 	if len(os.Args) != 0 {
-		text = os.Args[1]
+		text = os.Args[len(os.Args)-1]
 	}
+
 	cow := string(file)
 	cow = strings.Replace(cow, "$the_cow = <<\"EOC\";\n", "", 1)
 	cow = strings.Replace(cow, "\\\\", "\\", -1)
-	cow = strings.Replace(cow, "$eyes", eyes, 1)
+	cow = strings.Replace(cow, "$eyes", e, 1)
 	cow = strings.Replace(cow, "$tongue", tongue, 1)
 	cow = strings.Replace(cow, "$thoughts", thoughts, 2)
 	cow = strings.Replace(cow, "\nEOC", "", 1)
