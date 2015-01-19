@@ -6,6 +6,7 @@ import (
 	wordwrap "github.com/mitchellh/go-wordwrap"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
@@ -71,10 +72,11 @@ func main() {
 	if cowPath == "" {
 		cowPath = "./cows"
 	}
-	var eyes, tongue string
+	var eyes, tongue, cowfile string
 	var list bool
 	flag.StringVar(&eyes, "e", "oo", "specify the eye")
 	flag.StringVar(&tongue, "T", "  ", "specify the tongue")
+	flag.StringVar(&cowfile, "f", "default", "specify the cow file to use")
 	flag.IntVar(&maxWidth, "W", 40, "specify roughly where the word should be wrapped")
 	flag.BoolVar(&list, "l", false, "list cow file in COWPATH")
 	flag.Parse()
@@ -93,17 +95,32 @@ func main() {
 	if utf8.RuneCountInString(tongue) < 2 {
 		tongue += " "
 	}
-	file, _ := ioutil.ReadFile("cows/default.cow")
+
+	var filePath string
+	var absolute, _ = regexp.MatchString("/", cowfile)
+	if absolute == true {
+		filePath = fmt.Sprintf("%s.cow", cowfile)
+	} else {
+		filePath = fmt.Sprintf("%s/%s.cow", cowPath, cowfile)
+	}
+
+	file, _ := ioutil.ReadFile(filePath)
 	if len(os.Args) != 0 {
 		text = os.Args[len(os.Args)-1]
 	}
 
 	cow := string(file)
+
+	r, _ := regexp.Compile("##.*\n")
+	cow = r.ReplaceAllString(cow, "")
+
+	cow = strings.Replace(cow, "$the_cow = <<EOC;\n", "", 1)
 	cow = strings.Replace(cow, "$the_cow = <<\"EOC\";\n", "", 1)
 	cow = strings.Replace(cow, "\\\\", "\\", -1)
-	cow = strings.Replace(cow, "$eyes", eyes, 1)
-	cow = strings.Replace(cow, "$tongue", tongue, 1)
-	cow = strings.Replace(cow, "$thoughts", thoughts, 2)
+	cow = strings.Replace(cow, "\\@", "@", -1)
+	cow = strings.Replace(cow, "$eyes", eyes, -1)
+	cow = strings.Replace(cow, "$tongue", tongue, -1)
+	cow = strings.Replace(cow, "$thoughts", thoughts, -1)
 	cow = strings.Replace(cow, "\nEOC", "", 1)
 
 	cow = say(text) + "\n" + cow
