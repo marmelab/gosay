@@ -24,7 +24,13 @@ func Say(text string, maxWidth int, d cowsayType.Delimiters) string {
 	nbLines := len(lines)
 	upper := " "
 	lower := " "
-	for l := maxWidth; l >= 0; l-- {
+	if nbLines == 1 {
+		maxWidth = len(lines[0])
+		upper += " "
+		lower += " "
+	}
+
+	for l := maxWidth + 1; l >= 0; l-- {
 		upper += "_"
 		lower += "-"
 	}
